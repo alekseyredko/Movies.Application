@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation.AspNetCore;
 using Microsoft.Extensions.DependencyInjection;
+using Movies.Application.Validators;
 
 namespace Movies.Application.Extensions
 {
@@ -12,6 +13,7 @@ namespace Movies.Application.Extensions
         public static void AddValidationExtensions(this IMvcBuilder mvcBuilder)
         {
             mvcBuilder.AddFluentValidation(
+                fv => fv.RegisterValidatorsFromAssemblyContaining<ReviewValidator>()
                 );
         }
     }
