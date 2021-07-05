@@ -13,9 +13,9 @@ using Movies.Data.Services.Interfaces;
 using MoviesDataLayer;
 using MoviesDataLayer.Interfaces;
 
-namespace Movies.Application
+namespace Movies.Application.Extensions
 {
-    public static class IServiceCollectionExtensions
+    public static class DataAccessExtensions
     {
         public static void AddDataAccessServices(this IServiceCollection services)
         {

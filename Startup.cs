@@ -20,6 +20,8 @@ using Movies.Data.Services;
 using Movies.Data.Services.Interfaces;
 using MoviesDataLayer;
 using MoviesDataLayer.Interfaces;
+using FluentValidation.AspNetCore;
+using Movies.Application.Extensions;
 
 namespace Movies.Application
 {
@@ -37,8 +39,9 @@ namespace Movies.Application
         {
 
             services.AddControllers()
-                .AddNewtonsoftJson(x => 
-                    x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+                .AddNewtonsoftJson(x =>
+                    x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore)
+                .AddValidationExtensions();
 
             services.AddSwaggerGen(c =>
             {
