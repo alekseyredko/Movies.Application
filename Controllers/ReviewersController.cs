@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Data.SqlClient;
 using Movies.Data.Models;
@@ -17,15 +18,18 @@ namespace Movies.Application.Controllers
     public class ReviewersController : ControllerBase
     {
         private readonly IReviewService _reviewService;
+        private readonly IPersonService _personService;
 
-        public ReviewersController(IReviewService reviewService)
+        public ReviewersController(IReviewService reviewService, IPersonService personService)
         {
             _reviewService = reviewService;
+            _personService = personService;
         }
 
         // GET: api/<ReviewersController>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ActionName("GetReviewerAsync")]
         public async Task<IActionResult> GetReviewersAsync()
         {
             var reviewers = await _reviewService.GetAllReviewersAsync();
@@ -42,6 +46,23 @@ namespace Movies.Application.Controllers
             {
                 var reviewer = await _reviewService.GetReviewerAsync(id);
                 return Ok(reviewer);
+            }
+            catch (InvalidOperationException e)
+            {
+                return NotFound();
+            }
+        }
+
+        // GET api/<ReviewersController>/5
+        [HttpGet("{id}/person")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetReviewerPersonAsync(int id)
+        {
+            try
+            {
+                var person = await _personService.GetPersonAsync(id);
+                return Ok(person);
             }
             catch (InvalidOperationException e)
             {
@@ -69,12 +90,13 @@ namespace Movies.Application.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> PostReviewerAsync(Reviewer reviewer)
+        public async Task<IActionResult> PostReviewerAsync(
+            [CustomizeValidator(RuleSet = "PostReviewer,other")] Reviewer reviewer)
         {
             try
             {
                 await _reviewService.AddReviewerAsync(reviewer);
-                return CreatedAtAction(nameof(PostReviewerAsync), reviewer);
+                return CreatedAtAction(nameof(GetReviewerAsync), new {id = reviewer.ReviewerId}, reviewer);
             }
             catch (InvalidOperationException e)
             {
@@ -86,7 +108,8 @@ namespace Movies.Application.Controllers
         [HttpPut()]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> PutReviewerAsync(Reviewer reviewer)
+        public async Task<IActionResult> PutReviewerAsync(
+            [CustomizeValidator(RuleSet = "PutReviewer,other")] Reviewer reviewer)
         {
             try
             {

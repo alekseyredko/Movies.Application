@@ -11,9 +11,11 @@ namespace Movies.Application.Validators
     {
         public ReviewValidator()
         {
+            //CascadeMode = CascadeMode.Continue;
+
             RuleSet("PostReview", () =>
             {
-                RuleFor(x => x.ReviewId).Null();
+                RuleFor(x => x.ReviewId).Empty();
             });
 
             RuleSet("PutReview", () =>
@@ -21,15 +23,19 @@ namespace Movies.Application.Validators
                 RuleFor(x => x.ReviewId).NotEmpty();
             });
 
-            RuleFor(x => x.LastUpdate).Null();
-            RuleFor(x => x.Movie).Null();
-            RuleFor(x => x.Reviewer).Null();
-            RuleFor(x => x.MovieId).NotNull();
-            RuleFor(x => x.Rate)
-                .GreaterThanOrEqualTo(1)
-                .LessThanOrEqualTo(10);
-            RuleFor(x => x.RevievText).NotEmpty();
-            RuleFor(x => x.ReviewerId).NotNull();
+            RuleSet("other", () =>
+            {
+                RuleFor(x => x.LastUpdate).Null();
+                RuleFor(x => x.Movie).Null();
+                RuleFor(x => x.Reviewer).Null();
+                RuleFor(x => x.MovieId).NotEmpty();
+                RuleFor(x => x.Rate)
+                    .NotEmpty()
+                    .GreaterThanOrEqualTo(1)
+                    .LessThanOrEqualTo(10);
+                RuleFor(x => x.RevievText).NotEmpty();
+                RuleFor(x => x.ReviewerId).NotEmpty();
+            });
         }
     }
 }

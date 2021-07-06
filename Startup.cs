@@ -43,6 +43,8 @@ namespace Movies.Application
                     x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore)
                 .AddValidationExtensions();
 
+            services.RegisterValidators();
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Movies.Application", Version = "v1" });

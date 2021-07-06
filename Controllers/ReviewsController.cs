@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Data.SqlClient;
 using Movies.Data.Models;
@@ -52,7 +53,8 @@ namespace Movies.Application.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> PostReviewAsync(Review review)
+        public async Task<IActionResult> PostReviewAsync(
+            [CustomizeValidator(RuleSet="PostReview,other")] Review review)
         {
             try
             {
@@ -67,10 +69,12 @@ namespace Movies.Application.Controllers
         }
 
         // PUT api/<ReviewsController>/5
-        [HttpPut()]
+        [HttpPut]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> PutAsync(Review review)
+        public async Task<IActionResult> PutAsync(
+            [CustomizeValidator(RuleSet = "PutReview,other")] Review review)
         {
             try
             {

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Data.SqlClient;
 using Movies.Data.Models;
@@ -40,6 +41,7 @@ namespace Movies.Application.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ActionName("GetMovieByIdAsync")]
         public async Task<IActionResult> GetMovieByIdAsync(int id)
         {
             try
@@ -89,12 +91,13 @@ namespace Movies.Application.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> PostMovieAsync(Movie movie)
+        public async Task<IActionResult> PostMovieAsync(
+            [CustomizeValidator(RuleSet = "PostMovie")]Movie movie)
         {
             try
             {
                 await _movieService.AddMovieAsync(movie);
-                return CreatedAtAction(nameof(PostMovieAsync), movie);
+                return CreatedAtAction(nameof(GetMovieByIdAsync), movie);
             }
             catch (InvalidOperationException e)
             {
@@ -107,7 +110,8 @@ namespace Movies.Application.Controllers
         [HttpPut]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> PutMovieAsync(Movie movie)
+        public async Task<IActionResult> PutMovieAsync(
+            [CustomizeValidator(RuleSet = "PutMovie")] Movie movie)
         {
             try
             {
