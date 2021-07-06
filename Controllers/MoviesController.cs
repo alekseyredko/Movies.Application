@@ -97,7 +97,7 @@ namespace Movies.Application.Controllers
             try
             {
                 await _movieService.AddMovieAsync(movie);
-                return CreatedAtAction(nameof(GetMovieByIdAsync), movie);
+                return CreatedAtAction(nameof(GetMovieByIdAsync), new {id = movie.MovieId}, movie);
             }
             catch (InvalidOperationException e)
             {

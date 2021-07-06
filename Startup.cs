@@ -21,6 +21,7 @@ using Movies.Data.Services.Interfaces;
 using MoviesDataLayer;
 using MoviesDataLayer.Interfaces;
 using FluentValidation.AspNetCore;
+using Movies.Application.Authentication;
 using Movies.Application.Extensions;
 
 namespace Movies.Application
@@ -51,6 +52,15 @@ namespace Movies.Application
             });
 
            services.AddDataAccessServices();
+
+           AddAuthentication(services);
+        }
+
+        private void AddAuthentication(IServiceCollection services)
+        {
+            var config = Configuration.GetSection("Auth");
+            services.Configure<AuthConfiguration>(config);
+            services.AddAuthentication(config.Get<AuthConfiguration>());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -67,6 +77,7 @@ namespace Movies.Application
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

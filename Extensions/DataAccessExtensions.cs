@@ -28,6 +28,7 @@ namespace Movies.Application.Extensions
             services.AddScoped<IReviewRepository, ReviewRepository>();
             services.AddScoped<IReviewerWatchHistoryRepository, ReviewerWatchHistoryRepository>();
             services.AddScoped<IReviewerRepository, ReviewerRepositoty>();
+            services.AddScoped<IUserRepository, UserRepository>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
@@ -36,7 +37,7 @@ namespace Movies.Application.Extensions
             services.AddScoped<IPersonService, PersonService>();
             //services.AddScoped<IProducerService, ProducerService>();
             services.AddScoped<IReviewService, ReviewService>();
-
+            services.AddScoped<IUserService, UserService>();
         }
     }
 }

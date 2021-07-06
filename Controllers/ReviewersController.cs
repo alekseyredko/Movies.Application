@@ -29,7 +29,6 @@ namespace Movies.Application.Controllers
         // GET: api/<ReviewersController>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ActionName("GetReviewerAsync")]
         public async Task<IActionResult> GetReviewersAsync()
         {
             var reviewers = await _reviewService.GetAllReviewersAsync();
@@ -40,6 +39,7 @@ namespace Movies.Application.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ActionName("GetReviewerAsync")]
         public async Task<IActionResult> GetReviewerAsync(int id)
         {
             try
