@@ -31,9 +31,9 @@ namespace Movies.Application.Controllers
         }
 
         // GET api/<UsersController>/5
-        [HttpGet]
+        [HttpPost("login")]
         [AllowAnonymous]
-        public async Task<IActionResult> LoginAsync([FromQuery]UserRequest userRequest)
+        public async Task<IActionResult> LoginAsync(UserRequest userRequest)
         {
             try
             {
@@ -48,7 +48,7 @@ namespace Movies.Application.Controllers
         }
 
         // POST api/<UsersController>
-        [HttpPost]
+        [HttpPost("register")]
         [AllowAnonymous]
         public async Task<IActionResult> RegisterAsync(UserRequest userRequest)
         {
