@@ -14,7 +14,7 @@ namespace Movies.Application.Validators
         {
             RuleSet("PostReviewer", () =>
             {
-                RuleFor(x => x.ReviewerId).Empty();
+                //RuleFor(x => x.ReviewerId).NotEmpty();
                 RuleFor(x => x.Person)
                     .SetValidator(new PersonValidator(), "PostPerson", "other");
             });
@@ -22,11 +22,12 @@ namespace Movies.Application.Validators
             RuleSet("PutReviewer", () =>
             {
                 
-                RuleFor(x => x.ReviewerId).NotEmpty();
+                //RuleFor(x => x.ReviewerId).NotEmpty();
             });
 
             RuleSet("other", () =>
             {
+                RuleFor(x => x.ReviewerId).Empty();
                 RuleForEach(x => x.Movies).Null();
                 RuleForEach(x => x.ReviewerWatchHistories).Null();
                 RuleForEach(x => x.Reviews).Null();

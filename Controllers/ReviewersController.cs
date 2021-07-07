@@ -4,8 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Data.SqlClient;
+using Movies.Application.Filters;
+using Movies.Application.Services;
 using Movies.Data.Models;
 using Movies.Data.Services.Interfaces;
 
@@ -26,7 +29,12 @@ namespace Movies.Application.Controllers
             _personService = personService;
         }
 
-        // GET: api/<ReviewersController>
+        
+        /// <summary>
+        /// Get all Reviewers from database
+        /// </summary>
+        /// <returns>List of Reviewers</returns>
+        /// <response code="200">Returns list of reviewers</response>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetReviewersAsync()
@@ -88,8 +96,11 @@ namespace Movies.Application.Controllers
 
         // POST api/<ReviewersController>
         [HttpPost]
+        [Authorize]
+        [ServiceFilter(typeof(ReviewerFilterAttribute))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> PostReviewerAsync(
             [CustomizeValidator(RuleSet = "PostReviewer,other")] Reviewer reviewer)
         {
@@ -106,7 +117,10 @@ namespace Movies.Application.Controllers
 
         // PUT api/<ReviewersController>/5
         [HttpPut()]
+        [Authorize]
+        [ServiceFilter(typeof(ReviewerFilterAttribute))]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> PutReviewerAsync(
             [CustomizeValidator(RuleSet = "PutReviewer,other")] Reviewer reviewer)
@@ -118,14 +132,16 @@ namespace Movies.Application.Controllers
             }
             catch (SqlException e)
             {
-                Console.WriteLine(e);
                 return NotFound();
             }
         }
 
         // DELETE api/<ReviewersController>/5
         [HttpDelete("{id}")]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteReviewerAsync(int id)
         {

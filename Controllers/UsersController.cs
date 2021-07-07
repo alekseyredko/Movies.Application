@@ -1,15 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
-using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using Movies.Application.Authentication;
+using Movies.Application.Services;
 using Movies.Data.Models;
 using Movies.Data.Services.Interfaces;
 
@@ -38,7 +34,7 @@ namespace Movies.Application.Controllers
             try
             {
                 var result = await _userService.LoginAsync(userRequest);
-                result.Token = GenerateJWTAsync(result);
+                result.Token = TokenHelper.GenerateJWTAsync(result, _authConfiguration);
                 return Ok(result);
             }
             catch (InvalidOperationException e)
@@ -55,34 +51,13 @@ namespace Movies.Application.Controllers
             try
             {
                 var userResponse = await _userService.RegisterAsync(userRequest);
-                userResponse.Token = GenerateJWTAsync(userResponse);
+                userResponse.Token = TokenHelper.GenerateJWTAsync(userResponse, _authConfiguration);
                 return Ok(userResponse);
             }
             catch (InvalidOperationException e)
             {
                 return BadRequest(e.Message);
             }
-        }
-
-        private string GenerateJWTAsync(UserResponse user)
-        {
-            var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_authConfiguration.Secret));
-
-            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-
-            var claims = new List<Claim>()
-            {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            };
-
-            var token = new JwtSecurityToken(
-                _authConfiguration.Issuer,
-                _authConfiguration.Audience,
-                claims,
-                expires: DateTime.Now.AddMinutes(_authConfiguration.TokenLifeTimeInMinutes),
-                signingCredentials: credentials);
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
         //private Guid GetIdFromToken()
