@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Data.SqlClient;
 using Movies.Data.Models;
@@ -25,6 +26,7 @@ namespace Movies.Application.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetReviewsAsync()
         {
@@ -34,6 +36,7 @@ namespace Movies.Application.Controllers
 
         // GET api/<ReviewsController>/5
         [HttpGet("{id}")]
+        [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetReviewAsync(int id)
@@ -51,6 +54,7 @@ namespace Movies.Application.Controllers
 
         // POST api/<ReviewsController>
         [HttpPost]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> PostReviewAsync(
@@ -70,6 +74,7 @@ namespace Movies.Application.Controllers
 
         // PUT api/<ReviewsController>/5
         [HttpPut]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -89,6 +94,7 @@ namespace Movies.Application.Controllers
 
         // DELETE api/<ReviewsController>/5
         [HttpDelete("{id}")]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteReviewAsync(int id)
