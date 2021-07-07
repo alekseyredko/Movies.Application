@@ -137,6 +137,27 @@ namespace Movies.Application.Controllers
         }
 
         // DELETE api/<ReviewersController>/5
+        [HttpDelete]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> DeleteReviewerAsync()
+        {
+            try
+            {
+                var id = TokenHelper.GetIdFromToken(HttpContext);
+                await _reviewService.DeleteReviewerAsync(id);
+                return NoContent();
+            }
+            catch (InvalidOperationException e)
+            {
+                return NotFound();
+            }
+        }
+
+        // DELETE api/<ReviewersController>/5
         [HttpDelete("{id}")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
