@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -14,7 +15,8 @@ namespace Movies.Application.Extensions
     {
         public static void AddValidationExtensions(this IMvcBuilder mvcBuilder)
         {
-            mvcBuilder.AddFluentValidation();
+            mvcBuilder.AddFluentValidation( fv=> 
+                fv.RegisterValidatorsFromAssembly(Assembly.GetAssembly(typeof(ValidationExtensions))));
         }
 
         public static void RegisterValidators(this IServiceCollection serviceCollection)
