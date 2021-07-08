@@ -18,12 +18,5 @@ namespace Movies.Application.Extensions
             mvcBuilder.AddFluentValidation( fv=> 
                 fv.RegisterValidatorsFromAssembly(Assembly.GetAssembly(typeof(ValidationExtensions))));
         }
-
-        public static void RegisterValidators(this IServiceCollection serviceCollection)
-        {
-            serviceCollection.AddTransient<IValidator<Review>, ReviewValidator>();
-            serviceCollection.AddTransient<IValidator<Reviewer>, ReviewerValidator>();
-            serviceCollection.AddTransient<IValidator<Person>, PersonValidator>();
-        }
     }
 }

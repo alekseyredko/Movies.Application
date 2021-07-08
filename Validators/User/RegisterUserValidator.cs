@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using FluentValidation;
+﻿using FluentValidation;
 using Movies.Application.Models;
 
-namespace Movies.Application.Validators
+namespace Movies.Application.Validators.User
 {
     public class RegisterUserValidator: AbstractValidator<RegisterUserRequest>
     {
