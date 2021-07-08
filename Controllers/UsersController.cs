@@ -2,9 +2,13 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Movies.Application.Authentication;
+using Movies.Application.Models;
 using Movies.Application.Services;
 using Movies.Data.Models;
 using Movies.Data.Services.Interfaces;
@@ -19,25 +23,33 @@ namespace Movies.Application.Controllers
     {
         private readonly IUserService _userService;
         private readonly AuthConfiguration _authConfiguration;
+        private readonly IMapper _mapper;
 
-        public UsersController(IUserService userService, IOptions<AuthConfiguration> authConfiguration)
+        public UsersController(IUserService userService, IOptions<AuthConfiguration> authConfiguration, IMapper mapper)
         {
             _userService = userService;
+            _mapper = mapper;
             _authConfiguration = authConfiguration.Value;
         }
 
-        // GET api/<UsersController>/5
         [HttpPost("login")]
         [AllowAnonymous]
-        public async Task<IActionResult> LoginAsync(UserRequest userRequest)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> LoginAsync(LoginUserRequest userRequest)
         {
             try
             {
-                var result = await _userService.LoginAsync(userRequest);
+                var user = _mapper.Map<LoginUserRequest, User>(userRequest);
+
+                var result = await _userService.LoginAsync(user);
                 result.Token = TokenHelper.GenerateJWTAsync(result, _authConfiguration);
-                return Ok(result);
+
+                var response = _mapper.Map<User, LoginUserResponse>(result);
+
+                return Ok(response);
             }
-            catch (InvalidOperationException e)
+            catch (Exception e)
             {
                 return BadRequest(e.Message);
             }
@@ -46,30 +58,25 @@ namespace Movies.Application.Controllers
         // POST api/<UsersController>
         [HttpPost("register")]
         [AllowAnonymous]
-        public async Task<IActionResult> RegisterAsync(UserRequest userRequest)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> RegisterAsync(RegisterUserRequest userRequest)
         {
             try
             {
-                var userResponse = await _userService.RegisterAsync(userRequest);
-                userResponse.Token = TokenHelper.GenerateJWTAsync(userResponse, _authConfiguration);
-                return Ok(userResponse);
+                var user = _mapper.Map<RegisterUserRequest, User>(userRequest);
+
+                var result = await _userService.RegisterAsync(user);
+                result.Token = TokenHelper.GenerateJWTAsync(result, _authConfiguration);
+
+                var response = _mapper.Map<User, RegisterUserResponse>(result);
+
+                return Ok(response);
             }
             catch (InvalidOperationException e)
             {
                 return BadRequest(e.Message);
             }
         }
-
-        //private Guid GetIdFromToken()
-        //{
-        //    var id = _contextAccessor
-        //        .HttpContext
-        //        .User
-        //        .Claims
-        //        .First(x => x.Type == ClaimTypes.NameIdentifier)
-        //        .Value;
-
-        //    return Guid.Parse(id);
-        //}
     }
 }

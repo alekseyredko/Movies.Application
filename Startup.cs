@@ -67,6 +67,8 @@ namespace Movies.Application
            services.AddFilters();
 
            AddAuthentication(services);
+
+           services.AddAutomapperAndProfile();
         }
 
         private void AddAuthentication(IServiceCollection services)

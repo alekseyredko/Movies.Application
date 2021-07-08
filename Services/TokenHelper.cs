@@ -14,7 +14,7 @@ namespace Movies.Application.Services
 {
     public class TokenHelper
     {
-        public static string GenerateJWTAsync(UserResponse user, AuthConfiguration authConfiguration)
+        public static string GenerateJWTAsync(User user, AuthConfiguration authConfiguration)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(authConfiguration.Secret));
 
@@ -22,7 +22,7 @@ namespace Movies.Application.Services
 
             var claims = new List<Claim>()
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Sub, user.UserId.ToString()),
             };
 
             var token = new JwtSecurityToken(authConfiguration.Issuer, authConfiguration.Audience,

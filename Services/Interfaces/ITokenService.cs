@@ -10,7 +10,7 @@ namespace Movies.Application.Services
 {
     interface ITokenService
     {
-        string GenerateJWTAsync(UserResponse user, AuthConfiguration authConfiguration);
+        string GenerateJWTAsync(User user, AuthConfiguration authConfiguration);
         int GetIdFromToken(HttpContext context);
     }
 }
