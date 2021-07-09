@@ -25,6 +25,7 @@ using MoviesDataLayer.Interfaces;
 using FluentValidation.AspNetCore;
 using Movies.Application.Authentication;
 using Movies.Application.Extensions;
+using Movies.Application.Filters;
 
 namespace Movies.Application
 {
@@ -41,7 +42,10 @@ namespace Movies.Application
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddControllers()
+            services.AddControllers(config =>
+                {
+                    config.Filters.Add(new SetIdFromTokenFilter());
+                })
                 .AddNewtonsoftJson(x =>
                     x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore)
                 .AddValidationExtensions();
@@ -62,11 +66,11 @@ namespace Movies.Application
 
             services.AddDataAccessServices();
            
-           services.AddFilters();
+            //services.AddFilters();
 
-           AddAuthentication(services);
+            AddAuthentication(services);
 
-           services.AddAutomapperAndProfile();
+            services.AddAutomapperAndProfile();
         }
 
         private void AddAuthentication(IServiceCollection services)

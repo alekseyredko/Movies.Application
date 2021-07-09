@@ -15,6 +15,8 @@ using Movies.Data.Models;
 using Movies.Data.Results;
 using Movies.Data.Services.Interfaces;
 using Movies.Application.Extensions;
+using Movies.Application.Models.User;
+
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace Movies.Application.Controllers
@@ -51,7 +53,7 @@ namespace Movies.Application.Controllers
             switch (result.ResultType)
             {
                 case ResultType.Ok:
-                    result.Value.Token = TokenHelper.GenerateJWTAsync(result.Value, _authConfiguration);
+                    response.Value.Token = TokenHelper.GenerateJWTAsync(result.Value, _authConfiguration);
                     return Ok(response);
 
                 default:
@@ -77,6 +79,56 @@ namespace Movies.Application.Controllers
             {
                 case ResultType.Ok:
                     response.Value.Token = TokenHelper.GenerateJWTAsync(result.Value, _authConfiguration);
+                    return Ok(response);
+
+                default:
+                    return this.ReturnFromResponse(response);
+            }
+        }
+
+        // POST api/<UsersController>
+        [HttpPut("update")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> UpdateAccountAsync(UpdateUserRequest userRequest)
+        {
+            //TODO: validate requests
+            var user = _mapper.Map<UpdateUserRequest, User>(userRequest);
+
+            var result = await _userService.UpdateAccountAsync(user);
+
+            var response =
+                _mapper.Map<Result<User>, Result<UpdateUserResponse>>(result);
+
+            switch (response.ResultType)
+            {
+                case ResultType.Ok:
+                    response.Value.Token = TokenHelper.GenerateJWTAsync(result.Value, _authConfiguration);
+                    return Ok(response);
+
+                default:
+                    return this.ReturnFromResponse(response);
+            }
+        }
+
+        // POST api/<UsersController>
+        [HttpDelete("delete")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> DeleteAccountAsync()
+        {
+
+            //var result = await _userService.UpdateAccountAsync(user);
+
+            var id = TokenHelper.GetIdFromToken(HttpContext);
+
+            var response = await _userService.DeleteAccountAsync(id);
+
+            switch (response.ResultType)
+            {
+                case ResultType.Ok:
                     return Ok(response);
 
                 default:

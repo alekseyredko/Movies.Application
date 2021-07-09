@@ -97,7 +97,6 @@ namespace Movies.Application.Controllers
         // POST api/<ReviewersController>
         [HttpPost]
         [Authorize]
-        [ServiceFilter(typeof(ReviewerFilterAttribute))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -118,7 +117,6 @@ namespace Movies.Application.Controllers
         // PUT api/<ReviewersController>/5
         [HttpPut()]
         [Authorize]
-        [ServiceFilter(typeof(ReviewerFilterAttribute))]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -141,7 +139,6 @@ namespace Movies.Application.Controllers
         [Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteReviewerAsync()
         {
@@ -162,7 +159,6 @@ namespace Movies.Application.Controllers
         [Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteReviewerAsync(int id)
         {
