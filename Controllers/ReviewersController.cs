@@ -3,13 +3,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Options;
+using Movies.Application.Authentication;
+using Movies.Application.Extensions;
 using Movies.Application.Filters;
+using Movies.Application.Models.Reviewer;
 using Movies.Application.Services;
 using Movies.Data.Models;
+using Movies.Data.Results;
 using Movies.Data.Services.Interfaces;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -22,154 +28,164 @@ namespace Movies.Application.Controllers
     {
         private readonly IReviewService _reviewService;
         private readonly IPersonService _personService;
+        private readonly IUserService _userService;
+        private readonly IMapper _mapper;
+        private readonly AuthConfiguration _authConfiguration;
 
-        public ReviewersController(IReviewService reviewService, IPersonService personService)
+        public ReviewersController(IReviewService reviewService, IPersonService personService, IMapper mapper,
+            IUserService userService, IOptions<AuthConfiguration> authConfiguration)
         {
             _reviewService = reviewService;
             _personService = personService;
+            _mapper = mapper;
+            _userService = userService;
+            _authConfiguration = authConfiguration.Value;
         }
 
-        
+
         /// <summary>
         /// Get all Reviewers from database
         /// </summary>
         /// <returns>List of Reviewers</returns>
         /// <response code="200">Returns list of reviewers</response>
         [HttpGet]
+        [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetReviewersAsync()
         {
             var reviewers = await _reviewService.GetAllReviewersAsync();
-            return Ok(reviewers);
+            var result = _mapper.Map<Result<IEnumerable<Reviewer>>, Result<IEnumerable<ReviewerResponse>>>(reviewers);
+
+            switch (result.ResultType)
+            {
+                case ResultType.Ok:
+                    return Ok(result);
+
+                default:
+                    return this.ReturnFromResponse(result);
+            }
         }
 
         // GET api/<ReviewersController>/5
         [HttpGet("{id}")]
+        [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ActionName("GetReviewerAsync")]
         public async Task<IActionResult> GetReviewerAsync(int id)
         {
-            try
+            var reviewer = await _reviewService.GetReviewerAsync(id);
+            var result = _mapper.Map<Result<Reviewer>, Result<ReviewerResponse>>(reviewer);
+
+            switch (result.ResultType)
             {
-                var reviewer = await _reviewService.GetReviewerAsync(id);
-                return Ok(reviewer);
-            }
-            catch (InvalidOperationException e)
-            {
-                return NotFound();
+                case ResultType.Ok:
+                    return Ok(result);
+
+                default:
+                    return this.ReturnFromResponse(result);
             }
         }
 
-        // GET api/<ReviewersController>/5
-        [HttpGet("{id}/person")]
+        // GET api/<ReviewersController>/
+        [HttpGet("account")]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetReviewerPersonAsync(int id)
+        [ActionName("GetReviewerAsync")]
+        public async Task<IActionResult> GetReviewerAsync()
         {
-            try
-            {
-                var person = await _personService.GetPersonAsync(id);
-                return Ok(person);
-            }
-            catch (InvalidOperationException e)
-            {
-                return NotFound();
-            }
-        }
+            var id = TokenHelper.GetIdFromToken(HttpContext);
+            var reviewer = await _reviewService.GetReviewerAsync(id);
+            var result = _mapper.Map<Result<Reviewer>, Result<ReviewerResponse>>(reviewer);
 
-        [HttpGet("{id}/reviews")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetReviewersReviewsAsync(int id)
-        {
-            try
+            switch (result.ResultType)
             {
-                var reviewer = await _reviewService.GetReviewerWithAllAsync(id);
-                return Ok(reviewer.Reviews);
-            }
-            catch (InvalidOperationException e)
-            {
-                return NotFound();
+                case ResultType.Ok:
+                    return Ok(result);
+
+                default:
+                    return this.ReturnFromResponse(result);
             }
         }
 
         // POST api/<ReviewersController>
-        [HttpPost]
+        [HttpPost("account/register")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> PostReviewerAsync(
-            [CustomizeValidator(RuleSet = "PostReviewer,other")] Reviewer reviewer)
+        public async Task<IActionResult> PostReviewerAsync(RegisterReviewerRequest request)
         {
-            try
+            var mapped = _mapper.Map<RegisterReviewerRequest, Reviewer>(request);
+            var id = TokenHelper.GetIdFromToken(HttpContext);
+
+            mapped.ReviewerId = id;
+
+            var reviewer = await _reviewService.AddReviewerAsync(mapped);
+
+            var result = _mapper.Map<Result<Reviewer>, Result<RegisterReviewerResponse>>(reviewer);
+
+            switch (result.ResultType)
             {
-                await _reviewService.AddReviewerAsync(reviewer);
-                return CreatedAtAction(nameof(GetReviewerAsync), new {id = reviewer.ReviewerId}, reviewer);
+                case ResultType.Ok:
+
+                    var roles = await _userService.GetUserRolesAsync(id);
+                    result.Value.Token = TokenHelper.GenerateJWTAsync(id, roles, _authConfiguration);
+                    return Ok(result);
+
+                default:
+                    return this.ReturnFromResponse(result);
             }
-            catch (InvalidOperationException e)
-            {
-                return BadRequest();
-            }
+
         }
 
         // PUT api/<ReviewersController>/5
-        [HttpPut()]
+        [HttpPut("account/update")]
         [Authorize]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> PutReviewerAsync(
-            [CustomizeValidator(RuleSet = "PutReviewer,other")] Reviewer reviewer)
+        public async Task<IActionResult> PutReviewerAsync(ReviewerRequest request)
         {
-            try
+            var mapped = _mapper.Map<ReviewerRequest, Reviewer>(request);
+
+            var id = TokenHelper.GetIdFromToken(HttpContext);
+            mapped.ReviewerId = id;
+
+            var updated = await _reviewService.UpdateReviewerAsync(mapped);
+            var result = _mapper.Map<Result<Reviewer>, Result<ReviewerResponse>>(updated);
+
+            switch (result.ResultType)
             {
-                await _reviewService.UpdateReviewerAsync(reviewer);
-                return NoContent();
-            }
-            catch (SqlException e)
-            {
-                return NotFound();
+                case ResultType.Ok:
+                    return Ok(result);
+
+                default:
+                    return this.ReturnFromResponse(result);
             }
         }
 
-        // DELETE api/<ReviewersController>/5
-        [HttpDelete]
+        [HttpDelete("account/delete")]
         [Authorize]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> DeleteReviewerAsync()
+        public async Task<IActionResult> DeleteAccountAsync()
         {
-            try
-            {
-                var id = TokenHelper.GetIdFromToken(HttpContext);
-                await _reviewService.DeleteReviewerAsync(id);
-                return NoContent();
-            }
-            catch (InvalidOperationException e)
-            {
-                return NotFound();
-            }
-        }
+            var id = TokenHelper.GetIdFromToken(HttpContext);
 
-        // DELETE api/<ReviewersController>/5
-        [HttpDelete("{id}")]
-        [Authorize]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> DeleteReviewerAsync(int id)
-        {
-            try
+            var response = await _reviewService.DeleteReviewerAsync(id);
+
+            switch (response.ResultType)
             {
-                await _reviewService.DeleteReviewerAsync(id);
-                return NoContent();
-            }
-            catch (InvalidOperationException e)
-            {
-                return NotFound();
+                case ResultType.Ok:
+                    return Ok(response);
+
+                default:
+                    return this.ReturnFromResponse(response);
             }
         }
     }

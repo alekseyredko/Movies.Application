@@ -25,6 +25,7 @@ namespace Movies.Application.Extensions
             services.AddScoped<IGenreRepository, GenreRepository>();
             services.AddScoped<IMovieRepository, MovieRepository>();
             services.AddScoped<IPersonRepository, PersonRepository>();
+            services.AddScoped<IProducerRepository, ProducerRepository>();
             services.AddScoped<IReviewRepository, ReviewRepository>();
             services.AddScoped<IReviewerWatchHistoryRepository, ReviewerWatchHistoryRepository>();
             services.AddScoped<IReviewerRepository, ReviewerRepositoty>();

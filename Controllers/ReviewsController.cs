@@ -83,7 +83,7 @@ namespace Movies.Application.Controllers
         {
             try
             {
-                await _reviewService.UpdateReviewService(review);
+                await _reviewService.UpdateReviewAsync(review);
                 return NoContent();
             }
             catch (SqlException e)

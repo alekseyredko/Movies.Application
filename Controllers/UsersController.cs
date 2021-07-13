@@ -36,7 +36,30 @@ namespace Movies.Application.Controllers
             _authConfiguration = authConfiguration.Value;
         }
 
-        [HttpPost("login")]
+
+        // GET api/<ReviewersController>/
+        [HttpGet("account")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ActionName("GetReviewerAsync")]
+        public async Task<IActionResult> GetReviewerAsync()
+        {
+            var id = TokenHelper.GetIdFromToken(HttpContext);
+            var user = await _userService.GetUserAccountAsync(id);
+            var result = _mapper.Map<Result<User>, Result<GetUserResponse>>(user);
+
+            switch (result.ResultType)
+            {
+                case ResultType.Ok:
+                    return Ok(result);
+
+                default:
+                    return this.ReturnFromResponse(result);
+            }
+        }
+
+        [HttpPost("account/login")]
         [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -62,7 +85,7 @@ namespace Movies.Application.Controllers
         }
 
         // POST api/<UsersController>
-        [HttpPost("register")]
+        [HttpPost("account/register")]
         [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -86,8 +109,7 @@ namespace Movies.Application.Controllers
             }
         }
 
-        // POST api/<UsersController>
-        [HttpPut("update")]
+        [HttpPut("account/update")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -95,6 +117,8 @@ namespace Movies.Application.Controllers
         {
             //TODO: validate requests
             var user = _mapper.Map<UpdateUserRequest, User>(userRequest);
+
+            user.UserId = TokenHelper.GetIdFromToken(HttpContext);
 
             var result = await _userService.UpdateAccountAsync(user);
 
@@ -112,16 +136,13 @@ namespace Movies.Application.Controllers
             }
         }
 
-        // POST api/<UsersController>
-        [HttpDelete("delete")]
+        [HttpDelete("account/delete")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> DeleteAccountAsync()
         {
-
-            //var result = await _userService.UpdateAccountAsync(user);
-
             var id = TokenHelper.GetIdFromToken(HttpContext);
 
             var response = await _userService.DeleteAccountAsync(id);

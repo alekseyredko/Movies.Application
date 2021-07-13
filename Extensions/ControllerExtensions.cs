@@ -11,7 +11,7 @@ namespace Movies.Application.Extensions
 {
     public static class ControllerExtensions
     {
-        public static ActionResult ReturnFromResponse<T>(this ControllerBase controllerBase, Result<T> response)
+        public static ActionResult ReturnFromResponse(this ControllerBase controllerBase, Result response)
         {
             switch (response.ResultType)
             {

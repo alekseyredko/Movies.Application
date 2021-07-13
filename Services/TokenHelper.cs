@@ -25,6 +25,35 @@ namespace Movies.Application.Services
                 new Claim(JwtRegisteredClaimNames.Sub, user.UserId.ToString()),
             };
 
+            foreach (var userRole in user.Roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, Enum.GetName(userRole)));
+            }
+
+            var token = new JwtSecurityToken(authConfiguration.Issuer, authConfiguration.Audience,
+                claims,
+                expires: DateTime.Now.AddMinutes(authConfiguration.TokenLifeTimeInMinutes),
+                signingCredentials: credentials);
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public static string GenerateJWTAsync(int id, IEnumerable<UserRoles> roles, AuthConfiguration authConfiguration)
+        {
+            var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(authConfiguration.Secret));
+
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+            var claims = new List<Claim>()
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, id.ToString()),
+            };
+
+            foreach (var userRole in roles)
+            {
+                claims.Add(new Claim("role", Enum.GetName(userRole)));
+            }
+
             var token = new JwtSecurityToken(authConfiguration.Issuer, authConfiguration.Audience,
                 claims,
                 expires: DateTime.Now.AddMinutes(authConfiguration.TokenLifeTimeInMinutes),

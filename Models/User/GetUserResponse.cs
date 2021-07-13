@@ -2,13 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Movies.Data.Models;
 
 namespace Movies.Application.Models.User
 {
-    public class UpdateUserRequest
+    public class GetUserResponse
     {
+        public int UserId { get; set; }
+
         public string Login { get; set; }
-        public string Name { get; set; }
-        public string Password { get; set; }
+
+        public ICollection<UserRoles> Roles { get; set; }
     }
 }
