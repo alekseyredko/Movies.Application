@@ -76,7 +76,9 @@ namespace Movies.Application.Controllers
             switch (result.ResultType)
             {
                 case ResultType.Ok:
-                    response.Value.Token = TokenHelper.GenerateJWTAsync(result.Value, _authConfiguration);
+                    var roles = await _userService.GetUserRolesAsync(response.Value.UserId);
+
+                    response.Value.Token = TokenHelper.GenerateJWTAsync(result.Value.UserId, roles, _authConfiguration);
                     return Ok(response);
 
                 default:
@@ -128,6 +130,7 @@ namespace Movies.Application.Controllers
             switch (response.ResultType)
             {
                 case ResultType.Ok:
+                    //TODO: update jwt with roles
                     response.Value.Token = TokenHelper.GenerateJWTAsync(result.Value, _authConfiguration);
                     return Ok(response);
 
