@@ -36,7 +36,7 @@ namespace Movies.Application.Extensions
             services.AddScoped<IActorsService, ActorsService>();
             services.AddScoped<IMovieService, MovieService>();
             services.AddScoped<IPersonService, PersonService>();
-            //services.AddScoped<IProducerService, ProducerService>();
+            services.AddScoped<IProducerService, ProducerService>();
             services.AddScoped<IReviewService, ReviewService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IResultHandlerService, ResultHandlerService>();

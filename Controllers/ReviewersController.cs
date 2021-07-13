@@ -12,6 +12,7 @@ using Microsoft.Extensions.Options;
 using Movies.Application.Authentication;
 using Movies.Application.Extensions;
 using Movies.Application.Filters;
+using Movies.Application.Models;
 using Movies.Application.Models.Reviewer;
 using Movies.Application.Services;
 using Movies.Data.Models;
@@ -177,7 +178,15 @@ namespace Movies.Application.Controllers
         {
             var id = TokenHelper.GetIdFromToken(HttpContext);
 
-            var response = await _reviewService.DeleteReviewerAsync(id);
+            var result = await _reviewService.DeleteReviewerAsync(id);
+
+            var response = _mapper.Map<Result, Result<TokenResponse>>(result);
+            var roles = await _userService.GetUserRolesAsync(id);
+            
+            response.Value = new TokenResponse
+            {
+                Token = TokenHelper.GenerateJWTAsync(id, roles, _authConfiguration)
+            };
 
             switch (response.ResultType)
             {
