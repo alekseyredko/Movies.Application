@@ -20,4 +20,8 @@
     <ProjectReference Include="..\Movies.Data\Movies.Data.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Middleware\" />
+  </ItemGroup>
+
 </Project>

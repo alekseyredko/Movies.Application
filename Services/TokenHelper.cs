@@ -27,7 +27,7 @@ namespace Movies.Application.Services
 
             foreach (var userRole in user.Roles)
             {
-                claims.Add(new Claim("Roles", Enum.GetName(userRole)));
+                claims.Add(new Claim(ClaimTypes.Role, Enum.GetName(userRole)));
             }
 
             var token = new JwtSecurityToken(authConfiguration.Issuer, authConfiguration.Audience,
@@ -51,7 +51,7 @@ namespace Movies.Application.Services
 
             foreach (var userRole in roles)
             {
-                claims.Add(new Claim("Roles", Enum.GetName(userRole)));
+                claims.Add(new Claim(ClaimTypes.Role, Enum.GetName(userRole)));
             }
 
             var token = new JwtSecurityToken(authConfiguration.Issuer, authConfiguration.Audience,
@@ -67,5 +67,6 @@ namespace Movies.Application.Services
             var value = context.User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value;
             return int.Parse(value);
         }
+
     }
 }

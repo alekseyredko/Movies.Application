@@ -99,17 +99,17 @@ namespace Movies.Application.Controllers
         }
 
         // PUT api/<MoviesController>/5
-        [HttpPut("id")]
+        [HttpPut("{id}")]
         [Authorize(Roles = "Producer")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> PutMovieAsync(int movieId, [FromBody] UpdateMovieRequest request)
+        public async Task<IActionResult> PutMovieAsync(int id, [FromBody] UpdateMovieRequest request)
         {
             var movie = _mapper.Map<UpdateMovieRequest, Movie>(request);
-            var id = TokenHelper.GetIdFromToken(HttpContext);
+            var producerId = TokenHelper.GetIdFromToken(HttpContext);
 
-            var added = await _movieService.UpdateMovieAsync(id, movieId, movie);
+            var added = await _movieService.UpdateMovieAsync(producerId, id, movie);
             var result = _mapper.Map<Result<Movie>, Result<MovieResponse>>(added);
 
             switch (result.ResultType)
