@@ -8,6 +8,7 @@ using FluentValidation.AspNetCore;
 using Microsoft.Extensions.DependencyInjection;
 using Movies.Application.Validators;
 using Movies.Data.Models;
+using Movies.Data.Models.Validators;
 
 namespace Movies.Application.Extensions
 {
@@ -15,8 +16,12 @@ namespace Movies.Application.Extensions
     {
         public static void AddValidationExtensions(this IMvcBuilder mvcBuilder)
         {
-            mvcBuilder.AddFluentValidation( fv=> 
-                fv.RegisterValidatorsFromAssembly(Assembly.GetAssembly(typeof(ValidationExtensions))));
+            mvcBuilder.AddFluentValidation();
+        }
+
+        public static void RegisterValidatorsAsServices(this IServiceCollection collection)
+        {
+            collection.AddScoped<IValidator<User>, UserValidator>();
         }
     }
 }
