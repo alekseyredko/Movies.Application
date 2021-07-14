@@ -27,7 +27,7 @@ using Microsoft.AspNetCore.Authorization;
 using Movies.Application.Authentication;
 using Movies.Application.Extensions;
 using Movies.Application.Filters;
-using Movies.Application.Middleware;
+using Movies.Application.Services;
 
 namespace Movies.Application
 {

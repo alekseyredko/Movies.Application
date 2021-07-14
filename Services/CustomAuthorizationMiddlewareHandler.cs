@@ -11,7 +11,7 @@ using Movies.Application.Services;
 using Movies.Data.Models;
 using Movies.Data.Services.Interfaces;
 
-namespace Movies.Application.Middleware
+namespace Movies.Application.Services
 {
     public class CustomAuthorizationMiddlewareHandler: IAuthorizationMiddlewareResultHandler
 
