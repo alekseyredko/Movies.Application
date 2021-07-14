@@ -64,9 +64,16 @@ namespace Movies.Application.Services
 
         public static int GetIdFromToken(HttpContext context)
         {
-            var value = context.User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value;
-            return int.Parse(value);
-        }
+            var claim = context.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
 
+            if (claim == null)
+            {
+                return 0;
+            }
+
+            var value = claim.Value;
+
+            return int.TryParse(value, out int result) ? result : 0;
+        }
     }
 }
