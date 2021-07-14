@@ -32,6 +32,12 @@ namespace Movies.Application.Services
             AuthorizationPolicy authorizationPolicy,
             PolicyAuthorizationResult policyAuthorizationResult)
         {
+            if (!httpContext.Request.Headers.ContainsKey("Authorization"))
+            {
+                httpContext.Response.StatusCode = (int) HttpStatusCode.Unauthorized;
+                return;
+            }
+
             var id = TokenHelper.GetIdFromToken(httpContext);
             var roles = await _userService.GetUserRolesAsync(id);
 
