@@ -23,9 +23,11 @@ using Movies.Data.Services.Interfaces;
 using MoviesDataLayer;
 using MoviesDataLayer.Interfaces;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authorization;
 using Movies.Application.Authentication;
 using Movies.Application.Extensions;
 using Movies.Application.Filters;
+using Movies.Application.Middleware;
 
 namespace Movies.Application
 {
@@ -69,6 +71,8 @@ namespace Movies.Application
             //services.AddFilters();
 
             AddAuthentication(services);
+
+            services.AddScoped<IAuthorizationMiddlewareResultHandler, CustomAuthorizationMiddlewareHandler>();
 
             services.AddAutomapperAndProfile();
         }
