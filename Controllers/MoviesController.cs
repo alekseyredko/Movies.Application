@@ -142,22 +142,6 @@ namespace Movies.Application.Controllers
             }
         }
 
-        [HttpGet("{id}/actors")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetActorsFromMovieAsync(int id)
-        {
-            try
-            {
-                var actors = await _movieService.GetMovieActorsAsync(id);
-                return Ok(actors);
-            }
-            catch (InvalidOperationException e)
-            {
-                return NotFound();
-            }
-        }
-
         [HttpGet("{id}/reviews")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

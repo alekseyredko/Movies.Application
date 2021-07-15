@@ -33,7 +33,7 @@ namespace Movies.Application.Validators
                     .NotEmpty()
                     .GreaterThanOrEqualTo(1)
                     .LessThanOrEqualTo(10);
-                RuleFor(x => x.RevievText).NotEmpty();
+                RuleFor(x => x.ReviewText).NotEmpty();
                 RuleFor(x => x.ReviewerId).NotEmpty();
             });
         }

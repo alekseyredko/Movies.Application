@@ -9,6 +9,5 @@ namespace Movies.Application.Models.Movie
     {
         public string MovieName { get; set; }
         public TimeSpan? Duration { get; set; }
-        public int ProducerId { get; set; }
     }
 }
