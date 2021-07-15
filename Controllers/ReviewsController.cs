@@ -70,7 +70,7 @@ namespace Movies.Application.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost("{id}")]
         [Authorize(Roles = "Reviewer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -105,9 +105,9 @@ namespace Movies.Application.Controllers
         public async Task<IActionResult> PutReviewAsync(int id, [FromBody] UpdateReviewRequest request)
         {
             var review = _mapper.Map<UpdateReviewRequest, Review>(request);
-            var producerId = TokenHelper.GetIdFromToken(HttpContext);
+            var reviewerId = TokenHelper.GetIdFromToken(HttpContext);
 
-            var added = await _reviewService.UpdateReviewAsync(producerId, id, review);
+            var added = await _reviewService.UpdateReviewAsync(id, reviewerId, review);
             var result = _mapper.Map<Result<Review>, Result<ReviewResponse>>(added);
 
             switch (result.ResultType)
@@ -121,6 +121,7 @@ namespace Movies.Application.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Reviewer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]

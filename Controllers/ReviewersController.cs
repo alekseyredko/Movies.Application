@@ -91,10 +91,9 @@ namespace Movies.Application.Controllers
 
         // GET api/<ReviewersController>/
         [HttpGet("account")]
-        [Authorize]
+        [Authorize(Roles = "Reviewer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ActionName("GetReviewerAsync")]
         public async Task<IActionResult> GetReviewerAsync()
         {
             var id = TokenHelper.GetIdFromToken(HttpContext);
@@ -144,7 +143,7 @@ namespace Movies.Application.Controllers
 
         // PUT api/<ReviewersController>/5
         [HttpPut("account/update")]
-        [Authorize]
+        [Authorize(Roles = "Reviewer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -169,7 +168,7 @@ namespace Movies.Application.Controllers
         }
 
         [HttpDelete("account/delete")]
-        [Authorize]
+        [Authorize(Roles = "Reviewer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]

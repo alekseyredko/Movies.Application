@@ -124,6 +124,7 @@ namespace Movies.Application.Controllers
 
         // DELETE api/<MoviesController>/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Producer")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteMovieAsync(int id)
