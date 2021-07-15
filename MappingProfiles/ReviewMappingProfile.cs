@@ -19,8 +19,6 @@ namespace Movies.Application.MappingProfiles
 
             CreateMap<Review, ReviewResponse>();
             CreateMap<Result<Review>, Result<ReviewResponse>>();
-
-            CreateMap<IEnumerable<Review>, IEnumerable<ReviewResponse>>();
             CreateMap<Result<IEnumerable<Review>>, Result<IEnumerable<ReviewResponse>>>();
         }
     }
