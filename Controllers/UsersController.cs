@@ -130,7 +130,7 @@ namespace Movies.Application.Controllers
             switch (response.ResultType)
             {
                 case ResultType.Ok:
-                    //TODO: update jwt with roles
+                   
                     var roles = await _userService.GetUserRolesAsync(response.Value.UserId);
                     response.Value.Token = TokenHelper.GenerateJWTAsync(response.Value.UserId, roles, _authConfiguration);
                     return Ok(response);

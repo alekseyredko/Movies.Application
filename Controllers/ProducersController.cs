@@ -22,6 +22,7 @@ namespace Movies.Application.Controllers
 {
     namespace Movies.Application.Controllers
     {
+        //TODO: validate entities
         [Route("api/[controller]")]
         [ApiController]
         public class ProducersController : ControllerBase

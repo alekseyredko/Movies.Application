@@ -25,6 +25,7 @@ namespace Movies.Application.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    //TODO: validate entities
     public class ReviewersController : ControllerBase
     {
         private readonly IReviewService _reviewService;
