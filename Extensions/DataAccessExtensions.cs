@@ -39,7 +39,6 @@ namespace Movies.Application.Extensions
             services.AddScoped<IProducerService, ProducerService>();
             services.AddScoped<IReviewService, ReviewService>();
             services.AddScoped<IUserService, UserService>();
-            services.AddScoped<IResultHandlerService, ResultHandlerService>();
         }
     }
 }

@@ -25,15 +25,6 @@ namespace Movies.Application.Controllers
             _reviewService = reviewService;
         }
 
-        [HttpGet]
-        [AllowAnonymous]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetReviewsAsync()
-        {
-            var reviews = await _reviewService.GetAllReviewsAsync();
-            return Ok(reviews);
-        }
-
         // GET api/<ReviewsController>/5
         [HttpGet("{id}")]
         [AllowAnonymous]
