@@ -24,12 +24,12 @@ using MoviesDataLayer;
 using MoviesDataLayer.Interfaces;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
-using Movies.Application.Authentication;
-using Movies.Application.Extensions;
-using Movies.Application.Filters;
-using Movies.Application.Services;
+using Movies.Infrastructure.Authentication;
+using Movies.Infrastructure.Extensions;
+using Movies.Infrastructure.Filters;
+using Movies.Infrastructure.Services;
 
-namespace Movies.Application
+namespace Movies.Infrastructure
 {
     public class Startup
     {
@@ -58,7 +58,7 @@ namespace Movies.Application
             {
                 c.SwaggerDoc("v1", new OpenApiInfo
                 {
-                    Title = "Movies.Application", 
+                    Title = "Movies.Infrastructure", 
                     Version = "v1",
                     Description = "API to access movie catalog"
                 });
@@ -93,7 +93,7 @@ namespace Movies.Application
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Movies.Application v1"));
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Movies.Infrastructure v1"));
             }
 
             app.UseHttpsRedirection();

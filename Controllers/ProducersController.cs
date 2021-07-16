@@ -8,19 +8,19 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using Movies.Application.Authentication;
-using Movies.Application.Extensions;
-using Movies.Application.Models;
-using Movies.Application.Models.Producer;
-using Movies.Application.Models.Reviewer;
-using Movies.Application.Services;
+using Movies.Infrastructure.Authentication;
+using Movies.Infrastructure.Extensions;
+using Movies.Infrastructure.Models;
+using Movies.Infrastructure.Models.Producer;
+using Movies.Infrastructure.Models.Reviewer;
+using Movies.Infrastructure.Services;
 using Movies.Data.Models;
 using Movies.Data.Results;
 using Movies.Data.Services.Interfaces;
 
-namespace Movies.Application.Controllers
+namespace Movies.Infrastructure.Controllers
 {
-    namespace Movies.Application.Controllers
+    namespace Movies.Infrastructure.Controllers
     {
         //TODO: validate entities
         [Route("api/[controller]")]

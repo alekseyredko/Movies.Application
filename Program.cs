@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Movies.Application
+namespace Movies.Infrastructure
 {
     public class Program
     {
