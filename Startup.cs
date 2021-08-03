@@ -13,7 +13,7 @@ using System;
 using System.IO;
 using System.Reflection;
 
-namespace Movies.Infrastructure
+namespace Movies.Application
 {
     public class Startup
     {
