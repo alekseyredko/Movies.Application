@@ -8,16 +8,16 @@ using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Data.SqlClient;
-using Movies.Application.Extensions;
-using Movies.Application.Models.Movie;
-using Movies.Application.Services;
+using Movies.Infrastructure.Extensions;
+using Movies.Infrastructure.Models.Movie;
+using Movies.Infrastructure.Services;
 using Movies.Data.Models;
 using Movies.Data.Results;
 using Movies.Data.Services.Interfaces;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
-namespace Movies.Application.Controllers
+namespace Movies.Infrastructure.Controllers
 {
     //TODO: validate entities
     [Route("api/[controller]")]

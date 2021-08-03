@@ -8,18 +8,18 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
-using Movies.Application.Authentication;
-using Movies.Application.Models;
-using Movies.Application.Services;
+using Movies.Infrastructure.Authentication;
+using Movies.Infrastructure.Models;
+using Movies.Infrastructure.Services;
 using Movies.Data.Models;
 using Movies.Data.Results;
 using Movies.Data.Services.Interfaces;
-using Movies.Application.Extensions;
-using Movies.Application.Models.User;
+using Movies.Infrastructure.Extensions;
+using Movies.Infrastructure.Models.User;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
-namespace Movies.Application.Controllers
+namespace Movies.Infrastructure.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
