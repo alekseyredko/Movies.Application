@@ -17,7 +17,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "Movies.Infrastructure": {
+    "Movies.Application": {
       "commandName": "Project",
       "dotnetRunMessages": "true",
       "launchBrowser": true,
