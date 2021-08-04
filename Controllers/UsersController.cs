@@ -16,6 +16,7 @@ using Movies.Data.Results;
 using Movies.Data.Services.Interfaces;
 using Movies.Infrastructure.Extensions;
 using Movies.Infrastructure.Models.User;
+using Movies.Infrastructure.Services.Interfaces;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -25,11 +26,11 @@ namespace Movies.Infrastructure.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private readonly IUserService _userService;
+        private readonly ITokenUserService _userService;
         private readonly AuthConfiguration _authConfiguration;
         private readonly IMapper _mapper;
 
-        public UsersController(IUserService userService, IOptions<AuthConfiguration> authConfiguration, IMapper mapper)
+        public UsersController(ITokenUserService userService, IOptions<AuthConfiguration> authConfiguration, IMapper mapper)
         {
             _userService = userService;
             _mapper = mapper;
@@ -75,8 +76,7 @@ namespace Movies.Infrastructure.Controllers
 
             switch (result.ResultType)
             {
-                case ResultType.Ok:
-                   
+                case ResultType.Ok:                   
                     return Ok(response);
 
                 default:
@@ -100,8 +100,7 @@ namespace Movies.Infrastructure.Controllers
 
             switch (response.ResultType)
             {
-                case ResultType.Ok:
-                    response.Value.Token = TokenHelper.GenerateJWTAsync(result.Value.UserId, _authConfiguration);
+                case ResultType.Ok:                    
                     return Ok(response);
 
                 default:
@@ -127,10 +126,7 @@ namespace Movies.Infrastructure.Controllers
 
             switch (response.ResultType)
             {
-                case ResultType.Ok:
-                   
-                    var roles = await _userService.GetUserRolesAsync(response.Value.UserId);
-                    response.Value.Token = TokenHelper.GenerateJWTAsync(response.Value.UserId, _authConfiguration, roles.ToArray());
+                case ResultType.Ok:                   
                     return Ok(response);
 
                 default:
