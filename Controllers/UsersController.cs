@@ -76,9 +76,7 @@ namespace Movies.Infrastructure.Controllers
             switch (result.ResultType)
             {
                 case ResultType.Ok:
-                    var roles = await _userService.GetUserRolesAsync(response.Value.UserId);
-
-                    response.Value.Token = TokenHelper.GenerateJWTAsync(result.Value.UserId, _authConfiguration, roles.ToArray());
+                   
                     return Ok(response);
 
                 default:
