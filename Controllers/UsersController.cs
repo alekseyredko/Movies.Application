@@ -154,5 +154,28 @@ namespace Movies.Infrastructure.Controllers
                     return this.ReturnFromResponse(response);
             }
         }
+
+        //TODO: store refresh token in cookies
+        [HttpPost("refresh-token")]
+        [AllowAnonymous]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> RefreshTokenAsync(string token)
+        {
+            var result = await _userService.RefreshTokenAsync(token);
+
+            var response =
+                _mapper.Map<Result<User>, Result<LoginUserResponse>>(result);
+
+            switch (result.ResultType)
+            {
+                case ResultType.Ok:
+                    return Ok(response);
+
+                default:
+                    return this.ReturnFromResponse(response);
+            }
+        }
     }
 }
