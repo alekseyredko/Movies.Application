@@ -37,14 +37,11 @@ namespace Movies.Infrastructure.Controllers
             _authConfiguration = authConfiguration.Value;
         }
 
-
-        // GET api/<ReviewersController>/
         [HttpGet("account")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ActionName("GetReviewerAsync")]
-        public async Task<IActionResult> GetReviewerAsync()
+        [ProducesResponseType(StatusCodes.Status404NotFound)]       
+        public async Task<IActionResult> GetUserAccountAsync()
         {
             var id = TokenHelper.GetIdFromToken(HttpContext);
             var user = await _userService.GetUserAccountAsync(id);
