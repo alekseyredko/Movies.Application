@@ -58,7 +58,7 @@ namespace Movies.Application
 
             AddAuthentication(services);
 
-            services.AddScoped<IAuthorizationMiddlewareResultHandler, CustomAuthorizationMiddlewareHandler>();
+            services.AddTransient<IAuthorizationMiddlewareResultHandler, CustomAuthorizationMiddlewareHandler>();
 
             services.AddAutomapperAndProfile();
         }

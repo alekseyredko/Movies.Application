@@ -84,7 +84,7 @@ namespace Movies.Infrastructure.Controllers
         public async Task<IActionResult> PostMovieAsync(MovieRequest request)
         {
             var movie = _mapper.Map<MovieRequest, Movie>(request);
-            var id = TokenHelper.GetIdFromToken(HttpContext);
+            var id = RefreshTokenService.GetIdFromToken(HttpContext);
 
             var added = await _movieService.AddMovieAsync(id, movie);
             var result = _mapper.Map<Result<Movie>, Result<MovieResponse>>(added);
@@ -108,7 +108,7 @@ namespace Movies.Infrastructure.Controllers
         public async Task<IActionResult> PutMovieAsync(int id, [FromBody] UpdateMovieRequest request)
         {
             var movie = _mapper.Map<UpdateMovieRequest, Movie>(request);
-            var producerId = TokenHelper.GetIdFromToken(HttpContext);
+            var producerId = RefreshTokenService.GetIdFromToken(HttpContext);
 
             var added = await _movieService.UpdateMovieAsync(producerId, id, movie);
             var result = _mapper.Map<Result<Movie>, Result<MovieResponse>>(added);
@@ -130,7 +130,7 @@ namespace Movies.Infrastructure.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteMovieAsync(int id)
         {
-            var producerId = TokenHelper.GetIdFromToken(HttpContext);
+            var producerId = RefreshTokenService.GetIdFromToken(HttpContext);
 
             var response = await _movieService.DeleteMovieAsync(producerId, id);
 

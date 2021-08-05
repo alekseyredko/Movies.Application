@@ -81,7 +81,7 @@ namespace Movies.Infrastructure.Controllers
         public async Task<IActionResult> PostReviewAsync(int id, [FromBody] ReviewRequest request)
         {
             var review = _mapper.Map<ReviewRequest, Review>(request);
-            var reviewerId = TokenHelper.GetIdFromToken(HttpContext);
+            var reviewerId = RefreshTokenService.GetIdFromToken(HttpContext);
 
             var added = await _reviewService.AddReviewAsync(id, reviewerId, review);
             var result = _mapper.Map<Result<Review>, Result<ReviewResponse>>(added);
@@ -106,7 +106,7 @@ namespace Movies.Infrastructure.Controllers
         public async Task<IActionResult> PutReviewAsync(int id, [FromBody] UpdateReviewRequest request)
         {
             var review = _mapper.Map<UpdateReviewRequest, Review>(request);
-            var reviewerId = TokenHelper.GetIdFromToken(HttpContext);
+            var reviewerId = RefreshTokenService.GetIdFromToken(HttpContext);
 
             var added = await _reviewService.UpdateReviewAsync(id, reviewerId, review);
             var result = _mapper.Map<Result<Review>, Result<ReviewResponse>>(added);
@@ -130,7 +130,7 @@ namespace Movies.Infrastructure.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteReviewAsync(int id)
         {
-            var reviewerId = TokenHelper.GetIdFromToken(HttpContext);
+            var reviewerId = RefreshTokenService.GetIdFromToken(HttpContext);
 
             var response = await _reviewService.DeleteReviewAsync(reviewerId, id);
 

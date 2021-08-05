@@ -26,15 +26,20 @@ namespace Movies.Infrastructure.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private readonly ITokenUserService _userService;
+        private readonly IUserService _userService;
         private readonly AuthConfiguration _authConfiguration;
         private readonly IMapper _mapper;
+        private readonly IRefreshTokenService refreshTokenService;
 
-        public UsersController(ITokenUserService userService, IOptions<AuthConfiguration> authConfiguration, IMapper mapper)
+        public UsersController(IUserService userService, 
+                               IOptions<AuthConfiguration> authConfiguration, 
+                               IMapper mapper, 
+                               IRefreshTokenService refreshTokenService)
         {
             _userService = userService;
             _mapper = mapper;
             _authConfiguration = authConfiguration.Value;
+            this.refreshTokenService = refreshTokenService;
         }
 
         [HttpGet("account")]
@@ -43,7 +48,7 @@ namespace Movies.Infrastructure.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]       
         public async Task<IActionResult> GetUserAccountAsync()
         {
-            var id = TokenHelper.GetIdFromToken(HttpContext);
+            var id = RefreshTokenService.GetIdFromToken(HttpContext);
             var user = await _userService.GetUserAccountAsync(id);
             var result = _mapper.Map<Result<User>, Result<GetUserResponse>>(user);
 
@@ -71,9 +76,15 @@ namespace Movies.Infrastructure.Controllers
             var response =
                 _mapper.Map<Result<User>, Result<LoginUserResponse>>(result);
 
-            switch (result.ResultType)
+            switch (response.ResultType)
             {
-                case ResultType.Ok:                   
+                case ResultType.Ok:
+
+                    var tokens = await refreshTokenService.GenerateTokenPairAsync(result.Value.UserId);
+
+                    response.Value.Token = tokens.Value.Token;
+                    response.Value.RefreshToken = tokens.Value.RefreshToken;
+
                     return Ok(response);
 
                 default:
@@ -97,7 +108,13 @@ namespace Movies.Infrastructure.Controllers
 
             switch (response.ResultType)
             {
-                case ResultType.Ok:                    
+                case ResultType.Ok:
+
+                    var tokens = await refreshTokenService.GenerateTokenPairAsync(result.Value.UserId);
+
+                    response.Value.Token = tokens.Value.Token;
+                    response.Value.RefreshToken = tokens.Value.RefreshToken;
+
                     return Ok(response);
 
                 default:
@@ -114,7 +131,7 @@ namespace Movies.Infrastructure.Controllers
             //TODO: validate requests
             var user = _mapper.Map<UpdateUserRequest, User>(userRequest);
 
-            user.UserId = TokenHelper.GetIdFromToken(HttpContext);
+            user.UserId = RefreshTokenService.GetIdFromToken(HttpContext);
 
             var result = await _userService.UpdateAccountAsync(user);
 
@@ -123,7 +140,13 @@ namespace Movies.Infrastructure.Controllers
 
             switch (response.ResultType)
             {
-                case ResultType.Ok:                   
+                case ResultType.Ok:
+                    
+                    var tokens = await refreshTokenService.GenerateTokenPairAsync(result.Value.UserId);
+
+                    response.Value.Token = tokens.Value.Token;                    
+                    response.Value.RefreshToken = tokens.Value.RefreshToken;
+                    
                     return Ok(response);
 
                 default:
@@ -138,7 +161,7 @@ namespace Movies.Infrastructure.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> DeleteAccountAsync()
         {
-            var id = TokenHelper.GetIdFromToken(HttpContext);
+            var id = RefreshTokenService.GetIdFromToken(HttpContext);
 
             var response = await _userService.DeleteAccountAsync(id);
 
@@ -160,18 +183,15 @@ namespace Movies.Infrastructure.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> RefreshTokenAsync(string token)
         {
-            var result = await _userService.RefreshTokenAsync(token);
-
-            var response =
-                _mapper.Map<Result<User>, Result<LoginUserResponse>>(result);
+            var result = await refreshTokenService.RefreshTokenAsync(token);
 
             switch (result.ResultType)
             {
                 case ResultType.Ok:
-                    return Ok(response);
+                    return Ok(result);
 
                 default:
-                    return this.ReturnFromResponse(response);
+                    return this.ReturnFromResponse(result);
             }
         }
     }

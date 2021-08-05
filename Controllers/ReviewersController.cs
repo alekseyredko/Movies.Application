@@ -18,6 +18,7 @@ using Movies.Infrastructure.Services;
 using Movies.Data.Models;
 using Movies.Data.Results;
 using Movies.Data.Services.Interfaces;
+using Movies.Infrastructure.Services.Interfaces;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -28,20 +29,23 @@ namespace Movies.Infrastructure.Controllers
     //TODO: validate entities
     public class ReviewersController : ControllerBase
     {
-        private readonly IReviewService _reviewService;
-        private readonly IPersonService _personService;
+        private readonly IReviewService _reviewService;       
         private readonly IUserService _userService;
         private readonly IMapper _mapper;
         private readonly AuthConfiguration _authConfiguration;
+        private readonly IRefreshTokenService refreshTokenService;
 
-        public ReviewersController(IReviewService reviewService, IPersonService personService, IMapper mapper,
-            IUserService userService, IOptions<AuthConfiguration> authConfiguration)
+        public ReviewersController(IReviewService reviewService,
+                                   IMapper mapper,
+                                   IUserService userService,
+                                   IOptions<AuthConfiguration> authConfiguration, 
+                                   IRefreshTokenService refreshTokenService)
         {
             _reviewService = reviewService;
-            _personService = personService;
             _mapper = mapper;
             _userService = userService;
             _authConfiguration = authConfiguration.Value;
+            this.refreshTokenService = refreshTokenService;
         }
 
 
@@ -97,7 +101,7 @@ namespace Movies.Infrastructure.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetReviewerAsync()
         {
-            var id = TokenHelper.GetIdFromToken(HttpContext);
+            var id = RefreshTokenService.GetIdFromToken(HttpContext);
             var reviewer = await _reviewService.GetReviewerAsync(id);
             var result = _mapper.Map<Result<Reviewer>, Result<ReviewerResponse>>(reviewer);
 
@@ -120,7 +124,7 @@ namespace Movies.Infrastructure.Controllers
         public async Task<IActionResult> PostReviewerAsync(RegisterReviewerRequest request)
         {
             var mapped = _mapper.Map<RegisterReviewerRequest, Reviewer>(request);
-            var id = TokenHelper.GetIdFromToken(HttpContext);
+            var id = RefreshTokenService.GetIdFromToken(HttpContext);
 
             mapped.ReviewerId = id;
 
@@ -132,8 +136,11 @@ namespace Movies.Infrastructure.Controllers
             {
                 case ResultType.Ok:
 
-                    var roles = await _userService.GetUserRolesAsync(id);
-                    result.Value.Token = TokenHelper.GenerateJWTAsync(id, _authConfiguration, roles.ToArray());
+                    //TODO: store refresh token in cookies
+
+                    var tokens = await refreshTokenService.GenerateTokenPairAsync(id);
+                    result.Value.Token = tokens.Value.Token;
+
                     return Ok(result);
 
                 default:
@@ -152,7 +159,7 @@ namespace Movies.Infrastructure.Controllers
         {
             var mapped = _mapper.Map<ReviewerRequest, Reviewer>(request);
 
-            var id = TokenHelper.GetIdFromToken(HttpContext);
+            var id = RefreshTokenService.GetIdFromToken(HttpContext);
             mapped.ReviewerId = id;
 
             var updated = await _reviewService.UpdateReviewerAsync(mapped);
@@ -176,21 +183,20 @@ namespace Movies.Infrastructure.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteAccountAsync()
         {
-            var id = TokenHelper.GetIdFromToken(HttpContext);
+            var id = RefreshTokenService.GetIdFromToken(HttpContext);
 
             var result = await _reviewService.DeleteReviewerAsync(id);
 
-            var response = _mapper.Map<Result, Result<TokenResponse>>(result);
-            var roles = await _userService.GetUserRolesAsync(id);
-            
-            response.Value = new TokenResponse
-            {
-                Token = TokenHelper.GenerateJWTAsync(id, _authConfiguration, roles.ToArray())
-            };
+            var response = _mapper.Map<Result, Result<TokenResponse>>(result);            
 
             switch (response.ResultType)
             {
                 case ResultType.Ok:
+                    
+                    //TODO: store refresh token in cookies
+                    var tokens = await refreshTokenService.GenerateTokenPairAsync(id);
+                    response.Value = tokens.Value;
+
                     return Ok(response);
 
                 default:

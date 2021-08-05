@@ -17,6 +17,7 @@ using Movies.Infrastructure.Services;
 using Movies.Data.Models;
 using Movies.Data.Results;
 using Movies.Data.Services.Interfaces;
+using Movies.Infrastructure.Services.Interfaces;
 
 namespace Movies.Infrastructure.Controllers
 {
@@ -31,14 +32,20 @@ namespace Movies.Infrastructure.Controllers
             private readonly IMapper _mapper;
             private readonly AuthConfiguration _authConfiguration;
             private readonly IUserService _userService;
+            private readonly IRefreshTokenService refreshTokenService;
 
-            public ProducersController(IProducerService producerService, IMapper mapper, IOptions<AuthConfiguration> authConfiguration, IUserService userService)
+            public ProducersController(IProducerService producerService, 
+                                       IMapper mapper, 
+                                       IOptions<AuthConfiguration> authConfiguration, 
+                                       IUserService userService, 
+                                       IRefreshTokenService refreshTokenService)
             {
-               
+
                 _mapper = mapper;
                 _userService = userService;
                 _producerService = producerService;
                 _authConfiguration = authConfiguration.Value;
+                this.refreshTokenService = refreshTokenService;
             }
 
 
@@ -91,7 +98,7 @@ namespace Movies.Infrastructure.Controllers
             [ProducesResponseType(StatusCodes.Status404NotFound)]
             public async Task<IActionResult> GetReviewerAsync()
             {
-                var id = TokenHelper.GetIdFromToken(HttpContext);
+                var id = RefreshTokenService.GetIdFromToken(HttpContext);
                 var producer = await _producerService.GetProducerAsync(id);
                 var result = _mapper.Map<Result<Producer>, Result<ProducerResponse>>(producer);
 
@@ -114,7 +121,7 @@ namespace Movies.Infrastructure.Controllers
             public async Task<IActionResult> PostProducerAsync(ProducerRequest request)
             {
                 var mapped = _mapper.Map<ProducerRequest, Producer>(request);
-                var id = TokenHelper.GetIdFromToken(HttpContext);
+                var id = RefreshTokenService.GetIdFromToken(HttpContext);
 
                 mapped.ProducerId = id;
 
@@ -126,8 +133,10 @@ namespace Movies.Infrastructure.Controllers
                 {
                     case ResultType.Ok:
 
-                        var roles = await _userService.GetUserRolesAsync(id);
-                        result.Value.Token = TokenHelper.GenerateJWTAsync(id, _authConfiguration, roles.ToArray());
+                        //TODO: store refresh token in cookies
+                        var tokens = await refreshTokenService.GenerateTokenPairAsync(id);
+                        result.Value.Token = tokens.Value.Token;
+
                         return Ok(result);
 
                     default:
@@ -146,7 +155,7 @@ namespace Movies.Infrastructure.Controllers
             {
                 var mapped = _mapper.Map<ProducerRequest, Producer>(request);
 
-                var id = TokenHelper.GetIdFromToken(HttpContext);
+                var id = RefreshTokenService.GetIdFromToken(HttpContext);
                 mapped.ProducerId = id;
 
                 var updated = await _producerService.UpdateProducerAsync(mapped);
@@ -170,21 +179,20 @@ namespace Movies.Infrastructure.Controllers
             [ProducesResponseType(StatusCodes.Status404NotFound)]
             public async Task<IActionResult> DeleteAccountAsync()
             {
-                var id = TokenHelper.GetIdFromToken(HttpContext);
+                var id = RefreshTokenService.GetIdFromToken(HttpContext);
 
                 var result = await _producerService.DeleteProducerAsync(id);
 
                 var response = _mapper.Map<Result, Result<TokenResponse>>(result);
-                var roles = await _userService.GetUserRolesAsync(id);
-
-                response.Value = new TokenResponse
-                {
-                    Token = TokenHelper.GenerateJWTAsync(id, _authConfiguration, roles.ToArray())
-                };
-
+               
                 switch (response.ResultType)
                 {
                     case ResultType.Ok:
+
+                        //TODO: store refresh token in cookies
+                        var tokens = await refreshTokenService.GenerateTokenPairAsync(id);
+                        response.Value = tokens.Value;
+
                         return Ok(response);
 
                     default:
