@@ -175,6 +175,25 @@ namespace Movies.Infrastructure.Controllers
             }
         }
 
+        [HttpPost("account/logout")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> LogoutAsync()
+        {
+            var response = await refreshTokenService.DeleteCookiesFromClient(Response);
+
+            switch (response.ResultType)
+            {
+                case ResultType.Ok:
+                    return Ok(response);
+
+                default:
+                    return this.ReturnFromResponse(response);
+            }
+        }
+
         //TODO: store refresh token in cookies
         [HttpPost("refresh-token")]
         [AllowAnonymous]
