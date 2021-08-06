@@ -31,9 +31,9 @@ namespace Movies.Infrastructure.Controllers
         private readonly IMapper _mapper;
         private readonly IRefreshTokenService refreshTokenService;
 
-        public UsersController(IUserService userService, 
-                               IOptions<AuthConfiguration> authConfiguration, 
-                               IMapper mapper, 
+        public UsersController(IUserService userService,
+                               IOptions<AuthConfiguration> authConfiguration,
+                               IMapper mapper,
                                IRefreshTokenService refreshTokenService)
         {
             _userService = userService;
@@ -45,7 +45,7 @@ namespace Movies.Infrastructure.Controllers
         [HttpGet("account")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]       
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetUserAccountAsync()
         {
             var id = RefreshTokenService.GetIdFromToken(HttpContext);
@@ -72,7 +72,7 @@ namespace Movies.Infrastructure.Controllers
             var user = _mapper.Map<LoginUserRequest, User>(userRequest);
 
             var result = await _userService.LoginAsync(user);
-            
+
             var response =
                 _mapper.Map<Result<User>, Result<LoginUserResponse>>(result);
 
@@ -80,10 +80,13 @@ namespace Movies.Infrastructure.Controllers
             {
                 case ResultType.Ok:
 
-                    var tokens = await refreshTokenService.GenerateTokenPairAsync(result.Value.UserId);
+                    var tokensResponse = await refreshTokenService
+                        .GenerateAndWriteTokensToResponseAsync(result.Value.UserId, Response);
+                    if (tokensResponse.ResultType != ResultType.Ok)
+                    {
+                        return this.ReturnFromResponse(tokensResponse);
+                    }
 
-                    response.Value.Token = tokens.Value.Token;
-                    response.Value.RefreshToken = tokens.Value.RefreshToken;
 
                     return Ok(response);
 
@@ -110,10 +113,12 @@ namespace Movies.Infrastructure.Controllers
             {
                 case ResultType.Ok:
 
-                    var tokens = await refreshTokenService.GenerateTokenPairAsync(result.Value.UserId);
-
-                    response.Value.Token = tokens.Value.Token;
-                    response.Value.RefreshToken = tokens.Value.RefreshToken;
+                    var tokensResponse = await refreshTokenService
+                        .GenerateAndWriteTokensToResponseAsync(result.Value.UserId, Response);
+                    if (tokensResponse.ResultType != ResultType.Ok)
+                    {
+                        return this.ReturnFromResponse(tokensResponse);
+                    }
 
                     return Ok(response);
 
@@ -141,12 +146,14 @@ namespace Movies.Infrastructure.Controllers
             switch (response.ResultType)
             {
                 case ResultType.Ok:
-                    
-                    var tokens = await refreshTokenService.GenerateTokenPairAsync(result.Value.UserId);
 
-                    response.Value.Token = tokens.Value.Token;                    
-                    response.Value.RefreshToken = tokens.Value.RefreshToken;
-                    
+                    var tokensResponse = await refreshTokenService
+                        .GenerateAndWriteTokensToResponseAsync(result.Value.UserId, Response);
+                    if (tokensResponse.ResultType != ResultType.Ok)
+                    {
+                        return this.ReturnFromResponse(tokensResponse);
+                    }
+
                     return Ok(response);
 
                 default:
