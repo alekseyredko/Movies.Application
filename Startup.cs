@@ -84,6 +84,17 @@ namespace Movies.Application
 
             app.UseRouting();
 
+            app.Use(async (context, next) =>
+            {
+                var token = context.Request.Cookies["Token"];
+                if (!string.IsNullOrEmpty(token))
+                {
+                    context.Request.Headers.Add("Authorization", "Bearer " + token);
+                }
+
+                await next();
+            });
+
             app.UseAuthentication();
             app.UseAuthorization();
 
