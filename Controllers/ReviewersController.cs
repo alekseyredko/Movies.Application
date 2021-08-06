@@ -1,17 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
 using Movies.Infrastructure.Authentication;
 using Movies.Infrastructure.Extensions;
-using Movies.Infrastructure.Filters;
 using Movies.Infrastructure.Models;
 using Movies.Infrastructure.Models.Reviewer;
 using Movies.Infrastructure.Services;
@@ -135,11 +130,13 @@ namespace Movies.Infrastructure.Controllers
             switch (result.ResultType)
             {
                 case ResultType.Ok:
-
-                    //TODO: store refresh token in cookies
-
-                    var tokens = await refreshTokenService.GenerateTokenPairAsync(id);
-                    result.Value.Token = tokens.Value.Token;
+                    
+                    var tokensResponse = await refreshTokenService
+                        .GenerateAndWriteTokensToResponseAsync(id, Response);
+                    if (tokensResponse.ResultType != ResultType.Ok)
+                    {
+                        return this.ReturnFromResponse(tokensResponse);
+                    }
 
                     return Ok(result);
 
@@ -192,10 +189,13 @@ namespace Movies.Infrastructure.Controllers
             switch (response.ResultType)
             {
                 case ResultType.Ok:
-                    
-                    //TODO: store refresh token in cookies
-                    var tokens = await refreshTokenService.GenerateTokenPairAsync(id);
-                    response.Value = tokens.Value;
+                
+                    var tokensResponse = await refreshTokenService
+                        .GenerateAndWriteTokensToResponseAsync(id, Response);
+                    if (tokensResponse.ResultType != ResultType.Ok)
+                    {
+                        return this.ReturnFromResponse(tokensResponse);
+                    }
 
                     return Ok(response);
 

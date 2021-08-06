@@ -1,7 +1,4 @@
-﻿
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
@@ -12,7 +9,6 @@ using Movies.Infrastructure.Authentication;
 using Movies.Infrastructure.Extensions;
 using Movies.Infrastructure.Models;
 using Movies.Infrastructure.Models.Producer;
-using Movies.Infrastructure.Models.Reviewer;
 using Movies.Infrastructure.Services;
 using Movies.Data.Models;
 using Movies.Data.Results;
@@ -133,9 +129,12 @@ namespace Movies.Infrastructure.Controllers
                 {
                     case ResultType.Ok:
 
-                        //TODO: store refresh token in cookies
-                        var tokens = await refreshTokenService.GenerateTokenPairAsync(id);
-                        result.Value.Token = tokens.Value.Token;
+                        var tokensResponse = await refreshTokenService
+                        .GenerateAndWriteTokensToResponseAsync(id, Response);
+                        if (tokensResponse.ResultType != ResultType.Ok)
+                        {
+                            return this.ReturnFromResponse(tokensResponse);
+                        }
 
                         return Ok(result);
 
@@ -189,9 +188,12 @@ namespace Movies.Infrastructure.Controllers
                 {
                     case ResultType.Ok:
 
-                        //TODO: store refresh token in cookies
-                        var tokens = await refreshTokenService.GenerateTokenPairAsync(id);
-                        response.Value = tokens.Value;
+                        var tokensResponse = await refreshTokenService
+                         .GenerateAndWriteTokensToResponseAsync(id, Response);
+                        if (tokensResponse.ResultType != ResultType.Ok)
+                        {
+                            return this.ReturnFromResponse(tokensResponse);
+                        }
 
                         return Ok(response);
 
